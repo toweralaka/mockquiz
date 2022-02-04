@@ -25,7 +25,8 @@ class Examination(models.Model):
     limit = models.IntegerField(default=0)
 
     objects = models.Manager()
-    actv = ExaminationManager() #active examination manager
+    #active examination manager
+    actv = ExaminationManager()
 
     def __str__(self):
         return self.name
@@ -33,12 +34,14 @@ class Examination(models.Model):
 
 
 class Subject(models.Model):
-    examination = models.ForeignKey(Examination, on_delete=models.CASCADE)
+    examination = models.ForeignKey(
+        Examination, on_delete=models.CASCADE)
     name = models.CharField(max_length=30)
     to_do = models.IntegerField(default=0)
     duration = models.IntegerField(default=0)
     compulsory = models.BooleanField(default=False)
-    weight = models.DecimalField(default=1.00, max_digits=5, decimal_places=2)
+    weight = models.DecimalField(
+        default=1.00, max_digits=5, decimal_places=2)
     limit = models.IntegerField(default=0)
 
     # class Meta:
@@ -58,23 +61,28 @@ class Subject(models.Model):
 
 
 class Topic(models.Model):
-    subject = models.ForeignKey(Subject, on_delete=models.CASCADE)
+    subject = models.ForeignKey(
+        Subject, on_delete=models.CASCADE)
     name = models.CharField(max_length=100)
     to_do = models.IntegerField(default=0)
     active = models.BooleanField(default=True)
+    # quantity of sub topic
     unit_subtopic = models.IntegerField(default=0)
-    weight = models.DecimalField(default=1.00, max_digits=5, decimal_places=2)
+    weight = models.DecimalField(
+        default=1.00, max_digits=5, decimal_places=2)
 
     def __str__(self):
         return self.name
 
 
 class SubTopic(models.Model):
-    topic = models.ForeignKey(Topic, on_delete=models.CASCADE)
+    topic = models.ForeignKey(
+        Topic, on_delete=models.CASCADE)
     name = models.CharField(max_length=100)
     to_do = models.IntegerField(default=0)
     active = models.BooleanField(default=True)
-    weight = models.DecimalField(default=1.00, max_digits=5, decimal_places=2)
+    weight = models.DecimalField(
+        default=1.00, max_digits=5, decimal_places=2)
 
     def __str__(self):
         return self.name
@@ -82,13 +90,15 @@ class SubTopic(models.Model):
 
 
 class Question(models.Model):
-    examination = models.CharField(max_length=20)
-    subject = models.CharField(max_length=30)
-    batch = models.CharField(max_length=30, null=True)
-    group_name = models.CharField(max_length=200, blank=True, null=True)
-    #subj = models.ForeignKey(Subject)
+    # examination = models.CharField(max_length=20)
+    # subject = models.CharField(max_length=30)
+    batch = models.CharField(max_length=30, blank=True, null=True)
+    # group_name = models.CharField(
+    #     max_length=200, blank=True, null=True)
+    subject = models.ForeignKey(Subject, on_delete=models.PROTECT)
     topic = models.CharField(max_length=100, default='General')
-    subtopic = models.CharField(max_length=100, default='General')
+    subtopic = models.CharField(
+        max_length=100, default='General')
     question_text = RichTextUploadingField()
     image = models.FileField(blank=True, null=True)
     a = RichTextUploadingField()

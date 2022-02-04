@@ -49,8 +49,8 @@ This is a quiz app based on Django as the backend.
    Performing system checks...
    
    System check identified no issues (0 silenced).
-   October 07, 2021 - 19:36:31
-   Django version 3.2.7, using settings 'announcement_platform.settings'
+   February 03, 2022 - 06:05:51
+   Django version 3.2.12, using settings 'mockquiz.settings'
    Starting development server at http://127.0.0.1:8000/
    Quit the server with CONTROL-C.
    ```
