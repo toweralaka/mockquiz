@@ -105,7 +105,7 @@ class Question(models.Model):
     a = RichTextUploadingField()
     b = RichTextUploadingField()
     c = RichTextUploadingField()
-    d = RichTextUploadingField()
+    d = RichTextUploadingField(blank=True, null=True)
     e = RichTextUploadingField(blank=True, null=True)
     ans = models.CharField(max_length=1)
 

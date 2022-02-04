@@ -97,9 +97,8 @@ class ExamCenter(models.Model):
 
     @property
     def qty(self):
-        listed = UserProfile.objects.filter(exam_center=self.id)
-        count = len(listed)
-        return count
+        return UserProfile.objects.filter(
+            exam_center=self.id).count()
 
 
     def __str__(self):
@@ -218,9 +217,10 @@ class UserProfile(models.Model):
     # referral_code = models.CharField(
     # max_length=5, blank=True, null=True)
     recieve_mails = models.BooleanField(
-        default=True, blank=False, verbose_name="Receive Emails?")
+        default=True, verbose_name="Receive Emails?")
 
-
+    def is_paid(self):
+        return False
     # def subject_list(self):
     #     sjt = []
     #     for i in self.subject.all():
@@ -381,10 +381,10 @@ class UserProfile(models.Model):
 class Subscription(models.Model):
     PAYMENT = (
         ('online', 'online'),
-        ('scratch card', 'scratch card'),
+        ('scratch_card', 'scratch card'),
     )
     user = models.ForeignKey(
-        settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+        UserProfile, on_delete=models.CASCADE)
     payment_type = models.CharField(
         max_length=20, choices=PAYMENT)
     reference = models.CharField(max_length=150)
@@ -396,8 +396,32 @@ class Subscription(models.Model):
         max_digits=7, decimal_places=2, default=0.00)
     payment_date = models.DateTimeField(auto_now_add=True)
 
+    def is_paid(self):
+        return self.amount == (self.amount_debited - self.amount_refunded)
+
+    def card_is_valid(self):
+        try:
+            # get card use
+            carduse = AccessCode.objects.get(
+                serial_number=self.reference).carduse
+            # if registered user of card is subscriber
+            if carduse.user == self.user.user:
+                return True
+        except Exception:
+            return False
+        
+
     def is_active(self):
-        return True
+        # if payment period is within 6 months
+        if timezone.now().month() - self.payment_date.month() <= 6:
+            if self.payment_type == 'scratch_card':
+                # if the scratch card is valid
+                if self.card_is_valid():
+                    return True
+            # if payment on stripe is full
+            elif is_paid(self):
+                return True
+        return False
 
 
 
