@@ -41,7 +41,7 @@ EMAIL_PORT = EMAIL_HOST = config('EMAIL_PORT', cast=int)
 
 INSTALLED_APPS = [
     'site_manager.apps.SiteManagerConfig',
-    # 'bank.apps.BankConfig',
+    'bank.apps.BankConfig',
     # 'userprofile.apps.UserprofileConfig',
     'ckeditor',
     'ckeditor_uploader',

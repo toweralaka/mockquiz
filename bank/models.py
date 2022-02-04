@@ -93,14 +93,15 @@ class Question(models.Model):
     # examination = models.CharField(max_length=20)
     # subject = models.CharField(max_length=30)
     batch = models.CharField(max_length=30, blank=True, null=True)
-    # group_name = models.CharField(
-    #     max_length=200, blank=True, null=True)
     subject = models.ForeignKey(Subject, on_delete=models.PROTECT)
-    topic = models.CharField(max_length=100, default='General')
-    subtopic = models.CharField(
-        max_length=100, default='General')
+    topic = models.ForeignKey(
+        Topic, on_delete=models.SET_NULL, blank=True, null=True)
+    subtopic = models.ForeignKey(
+        SubTopic, on_delete=models.SET_NULL, blank=True, null=True)
+    # topic = models.CharField(max_length=100, default='General')
+    # subtopic = models.CharField(
+    #     max_length=100, default='General')
     question_text = RichTextUploadingField()
-    image = models.FileField(blank=True, null=True)
     a = RichTextUploadingField()
     b = RichTextUploadingField()
     c = RichTextUploadingField()
@@ -134,4 +135,5 @@ class Question(models.Model):
         return mark_safe(self.e)
 
     def __str__(self):
-        return self.question_text.encode('utf-8')
+        # return self.question_text.encode('utf-8')
+        return mark_safe(self.question_text)
