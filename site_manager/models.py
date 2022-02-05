@@ -66,7 +66,7 @@ class Advert(models.Model):
 
 
 class CardUse(models.Model):
-    access_code = models.OneToOne(AccessCode, on_delete=models.CASCADE)
+    access_code = models.OneToOneField(AccessCode, on_delete=models.CASCADE)
     timeused = models.DateTimeField(auto_now_add=True)
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL, on_delete=models.PROTECT)

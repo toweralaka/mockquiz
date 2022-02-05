@@ -13,7 +13,7 @@ from decimal import Decimal
 from django.utils import timezone
 from datetime import timedelta, datetime
 from bank.models import Examination, Subject, Question, Topic, SubTopic
-from mngr.models import AccessCode, Advert
+from site_manager.models import AccessCode, Advert
 # Create your models here.
 
 
@@ -220,6 +220,9 @@ class UserProfile(models.Model):
         default=True, verbose_name="Receive Emails?")
 
     def is_paid(self):
+        for subscription in self.subscription_set.all():
+            if subscription.is_active():
+                return True
         return False
     # def subject_list(self):
     #     sjt = []
@@ -795,127 +798,127 @@ class Subscription(models.Model):
 
 
 
-class SendResult(models.Model):
-    user = models.CharField(max_length=15)
-    result = models.ForeignKey(Result, on_delete=models.CASCADE)
-    timesent = models.DateTimeField(auto_now_add=True)
+# class SendResult(models.Model):
+#     user = models.CharField(max_length=15)
+#     result = models.ForeignKey(Result, on_delete=models.CASCADE)
+#     timesent = models.DateTimeField(auto_now_add=True)
 
-    def __str__(self):
-        return self.user
-
-
-
-class SpecialCase(models.Model):
-    regnumber = models.CharField(max_length=10, default='-')
-    issue = models.CharField(max_length=15)
-    message = models.TextField()
-    noresult = models.BooleanField(default=False)
-
-    class Meta:
-        unique_together = ('regnumber', 'issue')
-
-    def __str__(self):
-        return self.regnumber
+#     def __str__(self):
+#         return self.user
 
 
-# First, define the Manager subclass.
-class WriteAccessManager(models.Manager):
-    def get_queryset(self):
-        return super(
-            WriteAccessManager, self
-            ).get_queryset().filter(active=True)
+
+# class SpecialCase(models.Model):
+#     regnumber = models.CharField(max_length=10, default='-')
+#     issue = models.CharField(max_length=15)
+#     message = models.TextField()
+#     noresult = models.BooleanField(default=False)
+
+#     class Meta:
+#         unique_together = ('regnumber', 'issue')
+
+#     def __str__(self):
+#         return self.regnumber
 
 
-class WriteAccess(models.Model):
-    name = models.CharField(max_length=50)
-    exam_center = models.ForeignKey(
-        ExamCenter, on_delete=models.CASCADE)
-    batch = models.ForeignKey(Batch, on_delete=models.CASCADE)
-    password = models.CharField(max_length=50)
-    time = models.DateTimeField()
-    active = models.BooleanField(default=True)
-
-    objects = models.Manager()
-    actv = WriteAccessManager() #active write_access manager
-
-    def __str__(self):
-        return self.name
+# # First, define the Manager subclass.
+# class WriteAccessManager(models.Manager):
+#     def get_queryset(self):
+#         return super(
+#             WriteAccessManager, self
+#             ).get_queryset().filter(active=True)
 
 
-class UserScript(models.Model):
-    user=models.ForeignKey(UserProfile, on_delete=models.CASCADE)
-    question=models.ForeignKey(
-        Question, 
-        on_delete=models.CASCADE, related_name='userquestion')
-    choice = models.CharField(max_length=1, blank=True, null=True)
+# class WriteAccess(models.Model):
+#     name = models.CharField(max_length=50)
+#     exam_center = models.ForeignKey(
+#         ExamCenter, on_delete=models.CASCADE)
+#     batch = models.ForeignKey(Batch, on_delete=models.CASCADE)
+#     password = models.CharField(max_length=50)
+#     time = models.DateTimeField()
+#     active = models.BooleanField(default=True)
 
-    def __str__(self):
-        return str(self.user)
+#     objects = models.Manager()
+#     actv = WriteAccessManager() #active write_access manager
 
-    @property
-    def realans(self):
-        return str(self.question.ans)
+#     def __str__(self):
+#         return self.name
 
-    def dchoice(self):
-        if self.choice == 'a':
-            return self.question.a
-        elif self.choice == 'b':
-            return self.question.b
-        elif self.choice == 'c':
-            return self.question.c
-        elif self.choice == 'd':
-            return self.question.d
-        elif self.choice == 'e':
-            return self.question.e
 
-    def danswer(self):
-        if self.question.ans == 'a':
-            return self.question.a
-        elif self.question.ans == 'b':
-            return self.question.b
-        elif self.question.ans == 'c':
-            return self.question.c
-        elif self.question.ans == 'd':
-            return self.question.d
-        elif self.question.ans == 'e':
-            return self.question.e
+# class UserScript(models.Model):
+#     user=models.ForeignKey(UserProfile, on_delete=models.CASCADE)
+#     question=models.ForeignKey(
+#         Question, 
+#         on_delete=models.CASCADE, related_name='userquestion')
+#     choice = models.CharField(max_length=1, blank=True, null=True)
 
-    @property
-    def dsubject(self):
-        return str(self.question.subject)
+#     def __str__(self):
+#         return str(self.user)
 
-    def dtopic(self):
-        if self.question.topic:
-            return str(self.question.topic)
-        else:
-            return '-'
+#     @property
+#     def realans(self):
+#         return str(self.question.ans)
 
-    def weighting(self):
-        exam = Examination.objects.get(
-            name=str(self.question.examination))
-        subject = Subject.objects.get(
-            name=str(self.question.subject), examination=exam)
-        try:
-            tpc = Topic.objects.get(
-                name=str(self.question.topic), subject=subject)
-            try:
-                sbtp = SubTopic.objects.get(
-                    name=str(self.question.topic), topic=tpc)
-                return str(sbtp.weight)
-            except SubTopic.DoesNotExist:
-                return str(tpc.weight)
-        except Topic.DoesNotExist:
-            return str(subject.weight)
+#     def dchoice(self):
+#         if self.choice == 'a':
+#             return self.question.a
+#         elif self.choice == 'b':
+#             return self.question.b
+#         elif self.choice == 'c':
+#             return self.question.c
+#         elif self.choice == 'd':
+#             return self.question.d
+#         elif self.choice == 'e':
+#             return self.question.e
+
+#     def danswer(self):
+#         if self.question.ans == 'a':
+#             return self.question.a
+#         elif self.question.ans == 'b':
+#             return self.question.b
+#         elif self.question.ans == 'c':
+#             return self.question.c
+#         elif self.question.ans == 'd':
+#             return self.question.d
+#         elif self.question.ans == 'e':
+#             return self.question.e
+
+#     @property
+#     def dsubject(self):
+#         return str(self.question.subject)
+
+#     def dtopic(self):
+#         if self.question.topic:
+#             return str(self.question.topic)
+#         else:
+#             return '-'
+
+#     def weighting(self):
+#         exam = Examination.objects.get(
+#             name=str(self.question.examination))
+#         subject = Subject.objects.get(
+#             name=str(self.question.subject), examination=exam)
+#         try:
+#             tpc = Topic.objects.get(
+#                 name=str(self.question.topic), subject=subject)
+#             try:
+#                 sbtp = SubTopic.objects.get(
+#                     name=str(self.question.topic), topic=tpc)
+#                 return str(sbtp.weight)
+#             except SubTopic.DoesNotExist:
+#                 return str(tpc.weight)
+#         except Topic.DoesNotExist:
+#             return str(subject.weight)
             
-    # def subject1_total(self):
-    #     subject1 = user.subject.all()[0]
-    #     all_script = 
+#     # def subject1_total(self):
+#     #     subject1 = user.subject.all()[0]
+#     #     all_script = 
 
 
 
-    def is_right(self):
-        if str(self.question.ans).lower() == str(self.choice).lower():
-            return True
+#     def is_right(self):
+#         if str(self.question.ans).lower() == str(self.choice).lower():
+#             return True
 
 
 #remark script

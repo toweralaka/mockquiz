@@ -42,7 +42,7 @@ EMAIL_PORT = EMAIL_HOST = config('EMAIL_PORT', cast=int)
 INSTALLED_APPS = [
     'site_manager.apps.SiteManagerConfig',
     'bank.apps.BankConfig',
-    # 'userprofile.apps.UserprofileConfig',
+    'userprofile.apps.UserprofileConfig',
     'ckeditor',
     'ckeditor_uploader',
     'django.contrib.admin',
